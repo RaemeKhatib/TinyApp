@@ -51,14 +51,14 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${randomName}`)
 });
 
-app.get("/urls/:id", (req, res) => {
+app.get("/urls/:id", (req, res) => {   // redirect to  summary id page
   const id = req.params.id
   const longURL = urlDatabase[id]
   const templateVars = { id, longURL};
   res.render("urls_show", templateVars);
 });
 
-app.get("/u/:id", (req, res) => {
+app.get("/u/:id", (req, res) => {   // redirect to actual website
   const id = req.params.id
   const longURL = urlDatabase[id]
   res.redirect(longURL);
