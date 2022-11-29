@@ -61,11 +61,18 @@ app.get("/urls/:id", (req, res) => {   // redirect to  summary id page
 app.get("/u/:id", (req, res) => {   // redirect to actual website
   const id = req.params.id
   const longURL = urlDatabase[id]
+  console.log(longURL)
   res.redirect(longURL);
 });
 
 app.post("/urls/:id/delete", (req, res) => {   // redirect to  summary id page
   const shortUrl = req.params.id;
   delete urlDatabase[shortUrl];
+  res.redirect("/urls");
+});
+
+app.post("/urls/:id/edit", (req, res) => {   // redirect to  summary id page
+  const shortUrl = req.params.id;
+   urlDatabase[shortUrl]= req.body.longUrl;
   res.redirect("/urls");
 });
