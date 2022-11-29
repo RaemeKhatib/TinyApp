@@ -71,8 +71,14 @@ app.post("/urls/:id/delete", (req, res) => {   // redirect to  summary id page
   res.redirect("/urls");
 });
 
-app.post("/urls/:id/edit", (req, res) => {   // redirect to  summary id page
+app.post("/urls/:id/edit", (req, res) => {
   const shortUrl = req.params.id;
-   urlDatabase[shortUrl]= req.body.longUrl;
-  res.redirect("/urls");
+  const newLongUrl = req.body.longUrl
+  
+  if (newLongUrl.slice(0, 8) === 'https://' || newLongUrl.slice(0, 7) === 'http://') {
+    urlDatabase[shortUrl] = newLongUrl;  // adds http: into input feild so http not manually required
+  } else {
+    urlDatabase[shortUrl] = `https://${newLongUrl}`;  // check if contains https: already
+  }
+  res.redirect('/urls');
 });
