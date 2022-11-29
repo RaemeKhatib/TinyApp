@@ -63,3 +63,9 @@ app.get("/u/:id", (req, res) => {   // redirect to actual website
   const longURL = urlDatabase[id]
   res.redirect(longURL);
 });
+
+app.post("/urls/:id/delete", (req, res) => {   // redirect to  summary id page
+  const shortUrl = req.params.id;
+  delete urlDatabase[shortUrl];
+  res.redirect("/urls");
+});
