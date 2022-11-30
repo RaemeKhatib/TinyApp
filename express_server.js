@@ -34,9 +34,8 @@ app.listen(PORT, () => {
 //   res.send("<html><body>Hello <b>World</b></body></html>\n");
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { urls: urlDatabase, username: req.cookies["username"] };
   res.render("urls_index", templateVars);
-  console.log(req.cookies["username"])
 });
 
 app.get("/urls/new", (req, res) => {
@@ -88,7 +87,7 @@ app.post("/urls/:id/edit", (req, res) => {
   res.redirect('/urls');
 });
 
-app.post("/auth", (req, res) => {   
+app.post("/login", (req, res) => {   
   const username = req.body.username;
   res.cookie('username', username)
   console.log(req.body)
