@@ -9,15 +9,17 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <div style="float:right; right: 40px; position: absolute;">
+        <div style="float:right; right: 50px; position: absolute;">
           <% if(username) {%>
           <div>
 <span>Logged in as: <%= username %></span>
+<form action="/logout" method="post" name="LoginForm">
+  <input type="submit" value="Logout">
+</form>
           </div>
-          <%} else{%> 
+          <%} else {%> 
           <form action="/login" method="post" name="LoginForm">
             <label for="username">
-
               <i class="fas fa-user"></i>
             </label>
             <i class="fas fa-lock"></i>
