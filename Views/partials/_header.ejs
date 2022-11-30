@@ -12,8 +12,8 @@
         <div style="float:right; right: 50px; position: absolute;">
           <% if(username) {%>
           <div> 
-<span>Logged in as: <%= username %></span>
 <form action="/logout" method="post" name="LoginForm">
+  <span>Logged in as: <%= username %></span>
   <input type="submit" value="Logout">
 </form>
           </div>
