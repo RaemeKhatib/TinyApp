@@ -1,9 +1,13 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
+const cookieParser = require('cookie-parser');
+const { application } = require("express");
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser())
+
 
 const generateRandomString = () => {
   return ((Math.random() + 1)* 0x10000).toString(36).substring(6);
@@ -32,6 +36,7 @@ app.listen(PORT, () => {
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
+  console.log(req.cookies["username"])
 });
 
 app.get("/urls/new", (req, res) => {
@@ -81,4 +86,11 @@ app.post("/urls/:id/edit", (req, res) => {
     urlDatabase[shortUrl] = `https://${newLongUrl}`;  // check if contains https: already
   }
   res.redirect('/urls');
+});
+
+app.post("/auth", (req, res) => {   
+  const username = req.body.username;
+  res.cookie('username', username)
+  console.log(req.body)
+  res.redirect('/urls')
 });
