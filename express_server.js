@@ -2,8 +2,10 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const cookieParser = require('cookie-parser');
-const { application } = require("express");
 
+const generateRandomString = () => {
+  return ((Math.random() + 1) * 0x10000).toString(36).substring(6);
+};
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -15,10 +17,6 @@ const findUserByEmail = (email) => {
     }
   }
   return null;
-};
-
-const generateRandomString = () => {
-  return ((Math.random() + 1) * 0x10000).toString(36).substring(6);
 };
 
 const urlDatabase = {
@@ -56,6 +54,7 @@ app.listen(PORT, () => {
 //   res.send("<html><body>Hello <b>World</b></body></html>\n");
 
 app.get("/urls", (req, res) => {
+  const user = users[req.cookies["username"]]
   const templateVars = { urls: urlDatabase, user:users[req.cookies["username"]] };
   res.render("urls_index", templateVars);
 });
@@ -81,7 +80,7 @@ app.post("/urls", (req, res) => {
 app.get("/urls/:id", (req, res) => {   // redirect to  summary id page
   const id = req.params.id;
   const longURL = urlDatabase[id];
-  const templateVars = { urls: urlDatabase, user:users[req.cookies["username"]] }; 
+  const templateVars = { id, longURL, urls: urlDatabase, user:users[req.cookies["username"]] }; 
    res.render("urls_show", templateVars);
 });
 
@@ -121,7 +120,7 @@ app.post("/logout", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  const templateVars = { username: null };
+  const templateVars = { user: null };
   res.render("urls_register", templateVars);
 });
 
@@ -132,12 +131,12 @@ app.post("/register", (req, res) => {
 
   if (!email || !password) {
     //respond with an error
-    res.send("error - please input email/password");
+    res.send("400 Bad Request");
   }
   const foundUser = findUserByEmail(email);
   if (foundUser) {
     //respond with error email in use 
-    res.send("Email/password already exists");
+    res.send("400 Bad Request");
   } else {
     const newUser = {
       id: generateRandomString(),
