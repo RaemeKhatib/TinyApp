@@ -9,26 +9,20 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <div style="float:right; right: 50px; position: absolute;">
           <% if(user){%>
-          <div> 
-<form action="/logout" method="post" name="LoginForm">
-  <span>Logged in as: <%= user.email %></span>
-  <input type="submit" value="Logout">
-</form>
-          </div>
-          <%} else {%> 
-          <form action="/login" method="post" name="LoginForm">
-            <label for="username">
-              <i class="fas fa-user"></i>
-            </label>
-            <i class="fas fa-lock"></i>
-            </label>
-            <input type="text" name="username" placeholder="Username" id="text" required>
-            <input type="submit" value="Login">
-          </form>
-          <%}%>
-        </div>
+            <div>
+              <form action="/logout" method="post" name="LoginForm">
+                <span>Logged in as: <%= user.email %></span>
+                <input type="submit" value="Logout">
+              </form>
+            </div>
+            <%} else {%>
+              <div class=" navbar-nav">
+                <a class="nav-item nav-link" href="/register">Register</a>
+                <a class="nav-item nav-link" href="/login">LogIn</a>
+              </div>
+              <%}%>
+
       </div>
     </div>
   </nav>
