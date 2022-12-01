@@ -82,13 +82,13 @@ const users = {
   userRandomID: {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur",
+    password: "1234",
 
   },
   user2RandomID: {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk",
+    password: "abcd",
   },
 };
 
@@ -107,9 +107,7 @@ app.get("/urls", (req, res) => {
     return res.status(401).send("user is not logged in");
   }
   const filteredUrlDatabase = urlsForUser(userId);
-console.log(filteredUrlDatabase)
   const templateVars = { urls: filteredUrlDatabase, user: users.userId };
-  console.log(filteredUrlDatabase);
   res.render("urls_index", templateVars);
 });
 
@@ -139,11 +137,11 @@ app.post("/urls", (req, res) => {
 //change url databases to the filtered databases and for delete and edit 
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
-  const userId = req.cookies["user_id"]
+  const userId = req.cookies["user_id"];
   if (!userId) {
     return res.send("Please login to view this content.");
   }
-const filteredUrlDatabase= urlsForUser(userId);
+  const filteredUrlDatabase = urlsForUser(userId);
 
   if (filteredUrlDatabase[id] && req.cookies["user_id"] !== filteredUrlDatabase[id].userID) {
     return res.send("You do not own this ID, only owners can update URLS");
@@ -171,7 +169,27 @@ app.get("/u/:id", (req, res) => {   // redirect to actual website
 });
 
 app.post("/urls/:id/delete", (req, res) => {   // redirect to  summary id page
-  const shortUrl = req.params.id;
+  const userId = req.cookies["user_id"];
+  const deleteshortUrl = req.params.id;
+  const filteredUrlDatabase = urlsForUser(userId);
+  const doesExist = false; // the url does not belong to that obj 
+  if (!userId) {
+    return res.status(400).send("User not found!");
+  }
+  if (!req.cookies.user_id) {
+    return res.status(401).send("User is not logged in to TinyUrl");
+  }
+  // we want to check the deletedshort url exists in the list of filtered urls or not, owned by current user
+  for (let shortUrl in filteredUrlDatabase) {
+    if (shortUrl === deleteshortUrl) {
+      doesExist = true; // if it does, then we change this to true
+    }
+  }
+  if (doesExist === false) { // then send an error
+    return res.status(402).send("Only Owners can delete URLs");
+  }
+
+// if true then we can delete the url
   delete urlDatabase[shortUrl];
   res.redirect("/urls");
 });
@@ -179,6 +197,9 @@ app.post("/urls/:id/delete", (req, res) => {   // redirect to  summary id page
 app.post("/urls/:id/edit", (req, res) => {
   const shortUrl = req.params.id;
   const newLongUrl = req.body.longUrl;
+  if (!loggedIn(req)) {
+    return res.status(400).send("Sorry you need to log in to edit")
+  }
 
   if (newLongUrl.slice(0, 8) === 'https://' || newLongUrl.slice(0, 7) === 'http://') {
     urlDatabase[shortUrl] = { longURL: newLongUrl, userID: req.cookies["user_id"] };  // adds http: into input feild so http not manually required
@@ -191,17 +212,23 @@ app.post("/urls/:id/edit", (req, res) => {
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const userId = findUserByEmail(email);
+  let userId = findUserByEmail(email);
   emptyFields(req, res);
   if (!userId) {
-    return res.status(400).send("User not found");
+    return res.status(400).send("User not found!");
   }
-  if (password !== users[userId].password) {
+  //comparing plain password to hash
+  if (!bcrypt.compareSync(req.body.password, users[userId].password)) {
+
     return res.status(400).send("Incorrect password");
   }
-  
-  res.cookie('user_id', userId);
-  res.redirect('/urls');
+  const cookieObj = {
+    email,
+    password,
+    id: userId,
+  };
+  res.cookie("user_id", cookieObj);
+  res.redirect("/urls");
 });
 
 app.get("/login", (req, res) => {
@@ -232,10 +259,11 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
+  const hashedPassword = bcrypt.hashSync(password, 10); 
   const user_id = generateRandomString();
   emptyFields(req, res);
   // if (!email || !password) {
-  //   //respond with an error
+  //   //respond with an error 
   //   res.status(400).send("400 Bad Request");
   // }
   const foundUser = findUserByEmail(email);
@@ -243,10 +271,10 @@ app.post("/register", (req, res) => {
     //respond with error email in use 
     res.status(400).send("400 User Already in Database");
   } else {
-    const newUser = {
+    const newUser = { 
       id: user_id,
       email: email,
-      password: password
+      password: hashedPassword
     };
     users[newUser.id] = newUser;
     // console.log(users)
