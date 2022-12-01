@@ -54,18 +54,18 @@ app.listen(PORT, () => {
 //   res.send("<html><body>Hello <b>World</b></body></html>\n");
 
 app.get("/urls", (req, res) => {
-  const user = users[req.cookies["user_id"]]
+  const user = users[req.cookies["user_id"]];
   const templateVars = { urls: urlDatabase, user: user };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  const templateVars = { urls: urlDatabase, user:users[req.cookies["user_id"]] };
+  const templateVars = { urls: urlDatabase, user: users[req.cookies["user_id"]] };
   res.render("urls_new", templateVars);
 });
 
 app.post("/urls", (req, res) => {
- // Log the POST request body to the console
+  // Log the POST request body to the console
   const randomName = generateRandomString();
   const newLongUrl = req.body.longURL;
   if (newLongUrl.slice(0, 8) === 'https://' || newLongUrl.slice(0, 7) === 'http://') {
@@ -80,8 +80,8 @@ app.post("/urls", (req, res) => {
 app.get("/urls/:id", (req, res) => {   // redirect to  summary id page
   const id = req.params.id;
   const longURL = urlDatabase[id];
-  const templateVars = { id, longURL, urls: urlDatabase, user:users[req.cookies["username"]] }; 
-   res.render("urls_show", templateVars);
+  const templateVars = { id, longURL, urls: urlDatabase, user: users[req.cookies["user_id"]] };
+  res.render("urls_show", templateVars);
 });
 
 app.get("/u/:id", (req, res) => {   // redirect to actual website
@@ -117,7 +117,7 @@ app.post("/login", (req, res) => {
 app.get("/login", (req, res) => {
   // const user = users[getUserByEmail(req)];
   const user = req.body.email;
-  const templateVars = {user};
+  const templateVars = { user };
   res.render("login", templateVars);
 });
 
