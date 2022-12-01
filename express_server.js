@@ -49,6 +49,12 @@ const loggedIn = (req) => {
   return true;
 };
 
+// const urlsForUser = (id) => {
+// if(req.cookies.user === req.cookies.user.email)
+// console.log(req.cookies.user )
+// }
+
+
 
 const urlDatabase = {
   b6UTxQ: {
@@ -74,7 +80,7 @@ const users = {
     password: "dishwasher-funk",
   },
 };
-//
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -91,18 +97,18 @@ app.listen(PORT, () => {
 //   res.send("<html><body>Hello <b>World</b></body></html>\n");
 
 app.get("/urls", (req, res) => {
-  if (!req.cookies.user) {
-    return res.send("the user is not logged in")
-  } 
+  // if (!req.cookies.user) {
+  //   return res.send("the user is not logged in")
+  // } 
   const user = users[req.cookies["user_id"]?.id];
-  const templateVars = { urls: urlDatabase, user: user };
+  const templateVars = { urls: urlDatabase, user};
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  if (!req.cookies["user_id"])  {
-    return res.redirect("/login");
-  }
+  // if (!req.cookies["user_id"])  {
+  //   return res.redirect("/login");
+  // }
   const templateVars = { urls: urlDatabase, user: users[req.cookies["user_id"]?.id] };
   res.render("urls_new", templateVars);
 });
