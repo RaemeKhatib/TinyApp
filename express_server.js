@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 const findUserByEmail = (email) => {
-  console.log(email, "<=")
+  console.log(email, "<=");
   for (const user in users) {
     if (email === users[user].email) {
       return user;
@@ -26,7 +26,29 @@ const emptyFields = (req, res) => {
     res.status(400).send("400 Bad Request - ");
     return;
   }
-}
+};
+
+const loggedIn = (req) => {
+  if (!req.cookies.user) {
+    return false;
+  }
+
+  const emailCookie = req.cookies.user.email;
+  const passwordCookie = req.cookies.user.password;
+
+  if (!findUserByEmail(emailCookie)) {
+    return false;
+  }
+
+  const userID = findUserByEmail(emailCookie);
+
+  if (users[userID].password !== passwordCookie) {
+    return false;
+  }
+
+  return true;
+};
+
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -74,12 +96,18 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
+  if (!req.cookies["user_id"])  {
+    return res.redirect("/login");
+  }
   const templateVars = { urls: urlDatabase, user: users[req.cookies["user_id"]?.id] };
   res.render("urls_new", templateVars);
 });
 
 app.post("/urls", (req, res) => {
   // Log the POST request body to the console
+  if(!req.cookies["user_id"]) {
+  return res.send("Im sorry only registered users can shorten URLS");
+} 
   const randomName = generateRandomString();
   const newLongUrl = req.body.longURL;
   if (newLongUrl.slice(0, 8) === 'https://' || newLongUrl.slice(0, 7) === 'http://') {
@@ -126,13 +154,13 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const userId = findUserByEmail(email);
-  emptyFields(req,res)
-if(!userId) {
-  return res.status(400).send("User not found")
-}
-if(password !== users[userId].password) {
-  return res.status(400).send("Incorrect password")
-}
+  emptyFields(req, res);
+  if (!userId) {
+    return res.status(400).send("User not found");
+  }
+  if (password !== users[userId].password) {
+    return res.status(400).send("Incorrect password");
+  }
   const cookieObj = {
     email,
     password,
@@ -146,8 +174,11 @@ app.get("/login", (req, res) => {
   // const user = users[getUserByEmail(req)];
   const user = req.body.email;
   const templateVars = { user };
+  if (loggedIn(req)) {
+    return res.redirect('/urls');
+  }
+
   res.render("login", templateVars);
-  
 });
 
 
@@ -158,6 +189,9 @@ app.post("/logout", (req, res) => {
 
 app.get("/register", (req, res) => {
   const templateVars = { user: null };
+  if (loggedIn(req)) {
+    return res.redirect('/urls');
+  }
   res.render("urls_register", templateVars);
 });
 
@@ -165,7 +199,7 @@ app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const user_id = randomName;
-emptyFields(req,res);
+  emptyFields(req, res);
   // if (!email || !password) {
   //   //respond with an error
   //   res.status(400).send("400 Bad Request");
