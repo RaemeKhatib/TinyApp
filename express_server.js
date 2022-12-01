@@ -20,6 +20,14 @@ const findUserByEmail = (email) => {
   return null;
 };
 
+const emptyFields = (req, res) => {
+  if (!req.body.email || !req.body.password) {
+    //respond with an error
+    res.status(400).send("400 Bad Request - ");
+    return;
+  }
+}
+
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -60,10 +68,8 @@ app.listen(PORT, () => {
 //   res.send("<html><body>Hello <b>World</b></body></html>\n");
 
 app.get("/urls", (req, res) => {
-  console.log(`This one means this`,req.cookies["user_id"])
   const user = users[req.cookies["user_id"]?.id];
   const templateVars = { urls: urlDatabase, user: user };
-  console.log(`this`, user, `that`, req.cookies["user_id"], `console.logging the users`, users)
   res.render("urls_index", templateVars);
 });
 
@@ -120,6 +126,13 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const userId = findUserByEmail(email);
+  emptyFields(req,res)
+if(!userId) {
+  return res.status(400).send("User not found")
+}
+if(password !== users[userId].password) {
+  return res.status(400).send("Incorrect password")
+}
   const cookieObj = {
     email,
     password,
@@ -140,7 +153,7 @@ app.get("/login", (req, res) => {
 
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
-  res.redirect('/urls');
+  res.redirect('/login');
 });
 
 app.get("/register", (req, res) => {
@@ -152,11 +165,11 @@ app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const user_id = randomName;
-
-  if (!email || !password) {
-    //respond with an error
-    res.status(400).send("400 Bad Request");
-  }
+emptyFields(req,res);
+  // if (!email || !password) {
+  //   //respond with an error
+  //   res.status(400).send("400 Bad Request");
+  // }
   const foundUser = findUserByEmail(email);
   if (foundUser) {
     //respond with error email in use 
