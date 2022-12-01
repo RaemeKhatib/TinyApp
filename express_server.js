@@ -49,10 +49,14 @@ const loggedIn = (req) => {
   return true;
 };
 
-// const urlsForUser = (id) => {
-// if(req.cookies.user === req.cookies.user.email)
-// console.log(req.cookies.user )
-// }
+const urlsForUser = (id) => {
+  const filteredURLS = {};
+  for (const urlId in urlDatabase) {
+    if (id === urlDatabase[urlId].userID) {
+      filteredURLS[urlId] = urlDatabase[urlId];
+    }
+  } return filteredURLS;
+};
 
 
 
@@ -89,27 +93,21 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
-// app.get("/urls.json", (req, res) => {
-//   res.json(urlDatabase);
-// });
-
-// app.get("/hello", (req, res) => {
-//   res.send("<html><body>Hello <b>World</b></body></html>\n");
 
 app.get("/urls", (req, res) => {
-  // if (!req.cookies.user) {
-  //   return res.send("the user is not logged in")
-  // } 
-  const user = users[req.cookies["user_id"]?.id];
-  const templateVars = { urls: urlDatabase, user};
+  if (!req.cookies["user_id"]) {
+    return res.status(401).send("user is not logged in");
+  }
+  const user = req.cookies["user_id"];
+  const templateVars = { urls: urlDatabase, user };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  // if (!req.cookies["user_id"])  {
-  //   return res.redirect("/login");
-  // }
-  const templateVars = { urls: urlDatabase, user: users[req.cookies["user_id"]?.id] };
+  if (!req.cookies["user_id"])  {
+    return res.redirect("/login");
+  }
+  const templateVars = { urls: urlDatabase, user: users[req.cookies["user_id"]] };
   res.render("urls_new", templateVars);
 });
 
@@ -130,9 +128,17 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {   // redirect to  summary id page
+  if(!req.cookies["user_id"]) {
+    return res.send("Please log in to view this content");
+  } 
+
   const id = req.params.id;
   const longURL = urlDatabase[id].longURL;
   const templateVars = { id, longURL, urls: urlDatabase, user: users[req.cookies["user_id"]] };
+  // const matchingId = urlsForUser(id);
+  // if(!matchingId){
+  //   return res.send("Only owners can update their own URLs")
+  // }
   res.render("urls_show", templateVars);
 });
 
