@@ -26,7 +26,6 @@ app.use(cookieSession({
 }));
 
 
-
 const urlDatabase = {
   b6UTxQ: {
     longURL: "https://www.tsn.ca",
@@ -100,7 +99,7 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${randomName}`);
 
 });
-//change url databases to the filtered databases and for delete and edit 
+//change url databases to the filtered databases and for delete and edit
 app.get("/urls/:id", (req, res) => {
   if (!loggedIn(req, users)) {
     return res.send("Please login to view this content.");
@@ -141,7 +140,7 @@ app.post("/urls/:id/delete", (req, res) => {   // redirect to  summary id page
   const userId = req.session["user_id"];
   const deleteshortUrl = req.params.id;
   const filteredUrlDatabase = urlsForUser(userId, urlDatabase);
-  let doesExist = false; // the url does not belong to that obj 
+  let doesExist = false; // the url does not belong to that obj
   if (!userId) {
     return res.status(400).send("User not found!");
   }
@@ -234,12 +233,12 @@ app.post("/register", (req, res) => {
   const user_id = generateRandomString();
   emptyFields(req, res);
   // if (!email || !password) {
-  //   //respond with an error 
+  //   //respond with an error
   //   res.status(400).send("400 Bad Request");
   // }
   const foundUser = findUserByUser_Id(user_id, users);
   if (foundUser) {
-    //respond with error email in use 
+    //respond with error email in use
     res.status(400).send("400 User Already in Database");
   } else {
     const newUser = {
@@ -253,4 +252,4 @@ app.post("/register", (req, res) => {
     res.redirect('/urls');
   }
 });
-// git comment 
+// git comment
