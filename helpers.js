@@ -11,7 +11,7 @@ const findUserByEmail = (email, users) => {
     if (email === users[user].email) {
       return user;
     }
-  }return null;
+  }
 };
 
 const emptyFields = (req, res) => {
