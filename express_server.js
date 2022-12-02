@@ -13,14 +13,18 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+const findUserByUser_Id = (user_id) => {
+  
+  return users[user_id];
+};
+
 const findUserByEmail = (email) => {
   for (const user in users) {
     if (email === users[user].email) {
       return user;
     }
-  }
-  return null;
-};
+  }return null;
+}
 
 const emptyFields = (req, res) => {
   if (!req.body.email || !req.body.password) {
@@ -31,20 +35,22 @@ const emptyFields = (req, res) => {
 };
 
 const loggedIn = (req) => {
-  if (!req.cookies.user) {
+  if (!req.cookies.user_id) {
+    console.log(1);
+    return false;
+
+  }
+
+const cookiesID = req.cookies.user_id
+  if (!findUserByUser_Id(cookiesID)) {
+    console.log(2);
     return false;
   }
 
-  const emailCookie = req.cookies.user.email;
-  const passwordCookie = req.cookies.user.password;
-
-  if (!findUserByEmail(emailCookie)) {
-    return false;
-  }
-
-  const userID = findUserByEmail(emailCookie);
-
+  const userID = findUserByUser_Id(cookiesID);
+//password- needs to be fixed
   if (users[userID].password !== passwordCookie) {
+    console.log(3);
     return false;
   }
 
@@ -54,7 +60,7 @@ const loggedIn = (req) => {
 const urlsForUser = (id) => {
   const filteredURLS = {};
   for (const urlId in urlDatabase) {
-    if (id === urlDatabase[urlId].userID) {
+    if (id.id === urlDatabase[urlId].userID) {
       filteredURLS[urlId] = urlDatabase[urlId];
     }
   } return filteredURLS;
@@ -107,7 +113,7 @@ app.get("/urls", (req, res) => {
     return res.status(401).send("user is not logged in");
   }
   const filteredUrlDatabase = urlsForUser(userId);
-  const templateVars = { urls: filteredUrlDatabase, user: users.userId };
+  const templateVars = { urls: filteredUrlDatabase, user: users[req.cookies["user_id"]] };
   res.render("urls_index", templateVars);
 });
 
@@ -133,20 +139,24 @@ app.post("/urls", (req, res) => {
     urlDatabase[randomName] = { longURL: `https://${newLongUrl}`, userID: req.cookies["user_id"] };  // check if contains https: already
   }
   res.redirect(`/urls/${randomName}`);
+
 });
 //change url databases to the filtered databases and for delete and edit 
 app.get("/urls/:id", (req, res) => {
-  const id = req.params.id;
-  const userId = req.cookies["user_id"];
-  if (!userId) {
+  if (!loggedIn(req)) {
     return res.send("Please login to view this content.");
   }
+  const id = req.params.id;
+  const userId = req.cookies["user_id"];
+  // if (!userId) {
+  //   return res.send("Please login to view this content.");
+  // }
   const filteredUrlDatabase = urlsForUser(userId);
 
-  if (filteredUrlDatabase[id] && req.cookies["user_id"] !== filteredUrlDatabase[id].userID) {
-    return res.send("You do not own this ID, only owners can update URLS");
-  }
-  const longURL = filteredUrlDatabase[id].longURL;
+  // if (filteredUrlDatabase[id] && req.cookies["user_id"] !== filteredUrlDatabase[id].userID) {
+  //   return res.send("You do not own this ID, only owners can update URLS");
+  // }
+  const longURL = urlDatabase[id].longURL;
   const templateVars = {
     id,
     longURL,
@@ -172,7 +182,7 @@ app.post("/urls/:id/delete", (req, res) => {   // redirect to  summary id page
   const userId = req.cookies["user_id"];
   const deleteshortUrl = req.params.id;
   const filteredUrlDatabase = urlsForUser(userId);
-  const doesExist = false; // the url does not belong to that obj 
+  let doesExist = false; // the url does not belong to that obj 
   if (!userId) {
     return res.status(400).send("User not found!");
   }
@@ -189,7 +199,7 @@ app.post("/urls/:id/delete", (req, res) => {   // redirect to  summary id page
     return res.status(402).send("Only Owners can delete URLs");
   }
 
-// if true then we can delete the url
+  // if true then we can delete the url
   delete urlDatabase[shortUrl];
   res.redirect("/urls");
 });
@@ -198,7 +208,7 @@ app.post("/urls/:id/edit", (req, res) => {
   const shortUrl = req.params.id;
   const newLongUrl = req.body.longUrl;
   if (!loggedIn(req)) {
-    return res.status(400).send("Sorry you need to log in to edit")
+    return res.status(400).send("Sorry you need to log in to edit");
   }
 
   if (newLongUrl.slice(0, 8) === 'https://' || newLongUrl.slice(0, 7) === 'http://') {
@@ -212,7 +222,7 @@ app.post("/urls/:id/edit", (req, res) => {
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  let userId = findUserByEmail(email);
+  let userId= findUserByEmail(email);
   emptyFields(req, res);
   if (!userId) {
     return res.status(400).send("User not found!");
@@ -222,12 +232,7 @@ app.post("/login", (req, res) => {
 
     return res.status(400).send("Incorrect password");
   }
-  const cookieObj = {
-    email,
-    password,
-    id: userId,
-  };
-  res.cookie("user_id", cookieObj);
+  res.cookie("user_id", userId);
   res.redirect("/urls");
 });
 
@@ -259,25 +264,32 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const hashedPassword = bcrypt.hashSync(password, 10); 
+  const hashedPassword = bcrypt.hashSync(password, 10);
+
+  // for (let key in users) {
+  //   if (users[key].email === req.body.email) {
+  //     if (bcrypt.compareSync(req.body.password, users[key].password))
+  // }
+  // }
+
   const user_id = generateRandomString();
   emptyFields(req, res);
   // if (!email || !password) {
   //   //respond with an error 
   //   res.status(400).send("400 Bad Request");
   // }
-  const foundUser = findUserByEmail(email);
+  const foundUser = findUserByUser_Id(user_id);
   if (foundUser) {
     //respond with error email in use 
     res.status(400).send("400 User Already in Database");
   } else {
-    const newUser = { 
+    const newUser = {
       id: user_id,
       email: email,
       password: hashedPassword
     };
     users[newUser.id] = newUser;
-    // console.log(users)
+  
     res.cookie('user_id', user_id);
     res.redirect('/urls');
   }
