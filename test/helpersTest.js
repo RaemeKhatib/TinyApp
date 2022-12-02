@@ -27,3 +27,5 @@ describe('findUserByEmail', function() {
     assert.isUndefined(user);
   });
 });
+
+//git commit
