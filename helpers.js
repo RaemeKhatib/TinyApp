@@ -29,12 +29,12 @@ const loggedIn = (req, users) => {
 
   }
 
-const cookiesID = req.session.user_id
+  const cookiesID = req.session.user_id;
   if (!findUserByUser_Id(cookiesID, users)) {
     console.log(2);
     return false;
   }
-//password- needs to be fixed
+  //password- needs to be fixed
   return true;
 };
 
@@ -55,4 +55,4 @@ module.exports = {
   findUserByUser_Id,
   generateRandomString
 
-}
+};
