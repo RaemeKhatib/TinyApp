@@ -14,7 +14,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 const findUserByUser_Id = (user_id) => {
-  
   return users[user_id];
 };
 
@@ -46,26 +45,18 @@ const cookiesID = req.cookies.user_id
     console.log(2);
     return false;
   }
-
-  const userID = findUserByUser_Id(cookiesID);
 //password- needs to be fixed
-  if (users[userID].password !== passwordCookie) {
-    console.log(3);
-    return false;
-  }
-
   return true;
 };
 
-const urlsForUser = (id) => {
+const urlsForUser = (user_id) => {
   const filteredURLS = {};
   for (const urlId in urlDatabase) {
-    if (id.id === urlDatabase[urlId].userID) {
+    if (user_id === urlDatabase[urlId].userID) {
       filteredURLS[urlId] = urlDatabase[urlId];
     }
   } return filteredURLS;
 };
-
 
 
 const urlDatabase = {
@@ -200,7 +191,7 @@ app.post("/urls/:id/delete", (req, res) => {   // redirect to  summary id page
   }
 
   // if true then we can delete the url
-  delete urlDatabase[shortUrl];
+  delete urlDatabase[deleteshortUrl];
   res.redirect("/urls");
 });
 
