@@ -64,10 +64,6 @@ app.get("/", (req, res) => {
   res.redirect("/urls");
 });
 
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
-});
-
 
 app.get("/urls", (req, res) => {
   const userId = req.session["user_id"];
@@ -252,3 +248,6 @@ app.post("/register", (req, res) => {
 });
 
 
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}!`);
+});
