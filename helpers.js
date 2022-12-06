@@ -17,21 +17,19 @@ const findUserByEmail = (email, users) => {
 const emptyFields = (req, res) => {
   if (!req.body.email || !req.body.password) {
     //respond with an error
-    res.status(400).send("400 Bad Request - ");
+    res.status(400).send("400 Bad Request - Please enter a valid email address and password");
     return;
   }
 };
 
 const loggedIn = (req, users) => {
   if (!req.session.user_id) {
-    console.log(1);
     return false;
 
   }
 
   const cookiesID = req.session.user_id;
   if (!findUserByUser_Id(cookiesID, users)) {
-    console.log(2);
     return false;
   }
   //password- needs to be fixed

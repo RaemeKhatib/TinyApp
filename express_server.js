@@ -223,20 +223,9 @@ app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const hashedPassword = bcrypt.hashSync(password, 10);
-
-  // for (let key in users) {
-  //   if (users[key].email === req.body.email) {
-  //     if (bcrypt.compareSync(req.body.password, users[key].password))
-  // }
-  // }
-
   const user_id = generateRandomString();
   emptyFields(req, res);
-  // if (!email || !password) {
-  //   //respond with an error
-  //   res.status(400).send("400 Bad Request");
-  // }
-  const foundUser = findUserByUser_Id(user_id, users);
+  const foundUser = findUserByEmail(email, users);
   if (foundUser) {
     //respond with error email in use
     res.status(400).send("400 User Already in Database");
@@ -247,9 +236,10 @@ app.post("/register", (req, res) => {
       password: hashedPassword
     };
     users[newUser.id] = newUser;
-
-    req.session["user_id"] = user_id;
+    // console.log(users)
+    req.session['user_id'] = user_id;
     res.redirect('/urls');
   }
 });
-// git comment
+
+
