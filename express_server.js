@@ -111,14 +111,7 @@ app.get("/urls/:id", (req, res) => {
     return res.send("Please login to view this content.");
   }
 
-  // if (!userId) {
-  //   return res.send("Please login to view this content.");
-  // }
   const filteredUrlDatabase = urlsForUser(userId, urlDatabase);
-
-  // if (filteredUrlDatabase[id] && req.cookies["user_id"] !== filteredUrlDatabase[id].userID) {
-  //   return res.send("You do not own this ID, only owners can update URLS");
-  // }
   const longURL = urlDatabase[id].longURL;
   const templateVars = {
     id,
