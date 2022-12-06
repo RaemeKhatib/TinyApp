@@ -57,7 +57,11 @@ const users = {
 };
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  const userId = req.session["user_id"];
+  if (!userId) {
+    return res.redirect("/login");
+  } 
+  res.redirect("/urls")
 });
 
 app.listen(PORT, () => {
@@ -68,7 +72,7 @@ app.listen(PORT, () => {
 app.get("/urls", (req, res) => {
   const userId = req.session["user_id"];
   if (!userId) {
-    return res.status(401).send("user is not logged in");
+    return res.redirect("/login");
   }
   const filteredUrlDatabase = urlsForUser(userId, urlDatabase);
   const templateVars = { urls: filteredUrlDatabase, user: users[req.session["user_id"]] };
