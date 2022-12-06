@@ -60,8 +60,8 @@ app.get("/", (req, res) => {
   const userId = req.session["user_id"];
   if (!userId) {
     return res.redirect("/login");
-  } 
-  res.redirect("/urls")
+  }
+  res.redirect("/urls");
 });
 
 app.listen(PORT, () => {
@@ -105,11 +105,16 @@ app.post("/urls", (req, res) => {
 });
 //change url databases to the filtered databases and for delete and edit
 app.get("/urls/:id", (req, res) => {
+  const id = req.params.id;
+  const userId = req.session["user_id"];
+  if (!urlDatabase[id]) {
+    return res.status(404).send("Error 404 not found");
+  }
+
   if (!loggedIn(req, users)) {
     return res.send("Please login to view this content.");
   }
-  const id = req.params.id;
-  const userId = req.session["user_id"];
+
   // if (!userId) {
   //   return res.send("Please login to view this content.");
   // }
