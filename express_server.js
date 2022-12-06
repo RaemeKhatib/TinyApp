@@ -84,9 +84,9 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  // console.log(req.body); // Log the POST request body to the console
-  if (!req.session["user_id"]) {
-    return res.send("Sorry, only logged in users can have shorted URLs");
+
+  if (!loggedIn(req, users)) {
+    return res.send("Please login to view this content.");
   }
   const randomName = generateRandomString();
   const newLongUrl = req.body.longURL;
@@ -106,12 +106,13 @@ app.get("/urls/:id", (req, res) => {
   if (!urlDatabase[id]) {
     return res.status(404).send("Error 404 not found");
   }
-
   if (!loggedIn(req, users)) {
     return res.send("Please login to view this content.");
   }
-
   const filteredUrlDatabase = urlsForUser(userId, urlDatabase);
+  if(!filteredUrlDatabase[id]) {
+    return res.status(401).send("Only owners can edit their own urls");
+  }
   const longURL = urlDatabase[id].longURL;
   const templateVars = {
     id,
@@ -119,6 +120,7 @@ app.get("/urls/:id", (req, res) => {
     urls: filteredUrlDatabase,
     user: users[req.session["user_id"]],
   };
+
   res.render("urls_show", templateVars);
 });
 
